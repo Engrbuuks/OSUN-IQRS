@@ -240,6 +240,7 @@ var ENAME   = 'Osun 2026 Governorship';
 var RPP     = 50;
 var RSEC    = 90;
 var all = [], filtered = [], curPage = 1;
+var seenPU = {};
 var lgaIdx = {}, lgaWards = {};
 var doneMap = {};
 var curCode = '';
@@ -320,6 +321,7 @@ function fetchAll() {
   apiGet('elections/' + EID + '/lga/state/' + SID)
     .then(function(lgas) {
       if (!lgas.length) throw new Error('No LGAs found. Check Election ID and State ID.');
+      all = []; seenPU = {};   // fresh walk — avoid accumulation across refreshes
       var lgaSel = document.getElementById('lgaF');
       lgaSel.innerHTML = '<option value="">All LGAs</option>';
       lgas.forEach(function(l) {
@@ -380,7 +382,11 @@ function processLgas(lgas) {
             return apiGet('elections/' + EID + '/pus?ward=' + wid)
               .then(function(pus) {
                 pus.forEach(function(pu) {
-                  all.push({ lga: lgaName, lgaDid: lgaDid, ward: wn, wardId: wid, code: pu.pu_code || pu.code || '', name: pu.name || '', imgUrl: getImg(pu), uploadedAt: getT(pu) });
+                  var pcode = pu.pu_code || pu.code || '';
+                  var key = pcode || (wid + '|' + (pu.name || '') + '|' + (pu._id || ''));
+                  if (seenPU[key]) return;   // skip duplicates
+                  seenPU[key] = true;
+                  all.push({ lga: lgaName, lgaDid: lgaDid, ward: wn, wardId: wid, code: pcode, name: pu.name || '', imgUrl: getImg(pu), uploadedAt: getT(pu) });
                 });
               }).catch(function() {});
           });
@@ -438,18 +444,26 @@ function clrF(t) {
   doFilter();
 }
 function resetF() { document.getElementById('lgaF').value=''; document.getElementById('wardF').innerHTML='<option value="">All Wards</option>'; document.getElementById('statF').value=''; document.getElementById('doneF').value=''; document.getElementById('srch').value=''; doFilter(); }
+var irevTot = 0, irevDocs = 0;
 function setIRevStats(tot, docs) {
-  document.getElementById('sTot').textContent  = tot.toLocaleString();
-  document.getElementById('sUp').textContent   = docs.toLocaleString();
-  document.getElementById('sPend').textContent = (tot - docs).toLocaleString();
-  document.getElementById('sUpPct').textContent= tot ? Math.round(docs/tot*100) + '% uploaded' : '';
+  irevTot = tot; irevDocs = docs;
+  updateStats();
 }
 function updateStats() {
-  var tot = filtered.length;
-  var up = filtered.filter(function(p) { return !!p.imgUrl; }).length;
-  var done = filtered.filter(function(p) { return !!doneMap[p.code]; }).length;
-  var pct = tot ? Math.round(done / tot * 100) : 0;
   var isF = filtered.length !== all.length;
+  // Total / Uploaded / Pending cards: use official IReV stats when unfiltered,
+  // fall back to filtered walk counts only when a filter is active.
+  var tot, up;
+  if (isF) {
+    tot = filtered.length;
+    up  = filtered.filter(function(p) { return !!p.imgUrl; }).length;
+  } else {
+    tot = irevTot || all.length;
+    up  = irevDocs || all.filter(function(p) { return !!p.imgUrl; }).length;
+  }
+  var done = filtered.filter(function(p) { return !!doneMap[p.code]; }).length;
+  var aggBase = filtered.length;
+  var pct = aggBase ? Math.round(done / aggBase * 100) : 0;
   document.getElementById('sTot').textContent = tot.toLocaleString();
   document.getElementById('sUp').textContent = up.toLocaleString();
   document.getElementById('sPend').textContent = (tot - up).toLocaleString();
@@ -459,7 +473,7 @@ function updateStats() {
   document.getElementById('ppct').textContent = pct + '%';
   document.getElementById('pfill').style.width = pct + '%';
   document.getElementById('pdone').textContent = done.toLocaleString();
-  document.getElementById('ptot').textContent = tot.toLocaleString() + (isF ? ' matching' : ' total');
+  document.getElementById('ptot').textContent = aggBase.toLocaleString() + (isF ? ' matching' : ' total');
 }
 function renderTable() {
   var con = document.getElementById('tcon');
