@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQRS - Osun 2026 Live Results</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1a7a3c;--gm:#22a050;--gl:#e8f5ee;
+  --white:#fff;--bg:#f2f5f3;--s2:#f0f5f2;
+  --border:#dde8e2;--b2:#c5d8cc;
+  --text:#0d1f14;--t2:#4a6458;--t3:#8aab97;
+  --amber:#d97706;--al:#fef3c7;
+  --blue:#2563eb;--bl:#eff6ff;
+  --done:#7c3aed;--dl:#ede9fe;
+  --radius:12px;--rsm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+}
+body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+.hdr{background:var(--white);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.blogo{height:40px;width:40px;min-width:40px;object-fit:contain;border-radius:6px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;}
+.bdiv{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+.bname{font-size:14px;font-weight:800;color:var(--green);letter-spacing:-0.3px;}
+.btag{font-size:11px;color:var(--t3);margin-top:1px;}
+.hmid{display:none;flex-direction:column;align-items:center;}
+.ebadge{background:var(--gl);border:1px solid var(--b2);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--green);}
+.edate{font-size:11px;color:var(--t3);font-family:"JetBrains Mono",monospace;}
+.hright{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.livechip{display:flex;align-items:center;gap:7px;background:var(--green);color:#fff;border-radius:99px;padding:6px 14px;font-size:12px;font-weight:700;}
+.ldot{width:7px;height:7px;background:#fff;border-radius:50%;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.75)}}
+.rfchip{display:none;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--border);border-radius:99px;padding:6px 12px;font-size:12px;color:var(--t2);font-family:"JetBrains Mono",monospace;}
+.rfnum{color:var(--green);font-weight:700;min-width:22px;text-align:center;}
+.main{max-width:1300px;margin:0 auto;padding:16px 12px 48px;}
+.banner{background:linear-gradient(135deg,var(--gl),#f0fdf4);border:1px solid rgba(26,122,60,0.2);border-radius:14px;padding:22px 24px;margin-bottom:16px;text-align:center;}
+.ban-label{font-size:13px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.ban-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.ban-sub{font-size:14px;color:var(--t2);font-weight:500;margin-bottom:16px;}
+.ctiles{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+.ctile{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px 18px;min-width:75px;text-align:center;box-shadow:var(--shadow);}
+.cnum{font-family:"JetBrains Mono",monospace;font-size:28px;font-weight:800;color:var(--green);line-height:1;}
+.clbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;margin-top:4px;}
+.grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.sc::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;}
+.sc.g::after{background:var(--green);}
+.sc.a::after{background:var(--amber);}
+.sc.b::after{background:var(--blue);}
+.sc.p::after{background:var(--done);}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.sc-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.sc-ico.g{background:var(--gl);}
+.sc-ico.a{background:var(--al);}
+.sc-ico.b{background:var(--bl);}
+.sc-ico.p{background:var(--dl);}
+.sc-lbl{font-size:11px;color:var(--t3);font-weight:500;margin-bottom:4px;}
+.sc-val{font-size:26px;font-weight:800;letter-spacing:-1px;line-height:1;font-family:"JetBrains Mono",monospace;}
+.sc-val.g{color:var(--green);}
+.sc-val.a{color:var(--amber);}
+.sc-val.b{color:var(--blue);}
+.sc-val.p{color:var(--done);}
+.sc-sub{font-size:11px;color:var(--t3);margin-top:4px;}
+.pcard{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;box-shadow:var(--shadow);}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.ptitle{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+.ptitle::before{content:"";display:block;width:4px;height:16px;background:var(--done);border-radius:2px;}
+.ppct{font-family:"JetBrains Mono",monospace;font-size:20px;font-weight:700;color:var(--done);}
+.ptrack{background:var(--s2);border:1px solid var(--border);border-radius:99px;height:10px;overflow:hidden;}
+.pfill{height:100%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#a855f7);transition:width 1.2s ease;}
+.plbls{display:flex;justify-content:space-between;margin-top:6px;}
+.plbls span{font-size:11px;color:var(--t3);font-family:"JetBrains Mono",monospace;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--t2);margin-bottom:12px;}
+.li{display:flex;align-items:center;gap:6px;}
+.fbar{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;box-shadow:var(--shadow);}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg.act{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;}
+.fl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;}
+select,.si{font-family:"Plus Jakarta Sans",sans-serif;font-size:13px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rsm);padding:8px 10px;color:var(--text);width:100%;outline:none;cursor:pointer;appearance:none;}
+.si{font-family:"JetBrains Mono",monospace;font-size:12px;}
+.btn{font-family:"Plus Jakarta Sans",sans-serif;font-size:12px;font-weight:600;padding:9px 14px;border-radius:var(--rsm);cursor:pointer;border:none;white-space:nowrap;}
+.btno{background:var(--white);color:var(--t2);border:1px solid var(--b2);}
+.btno:hover{background:var(--s2);}
+.btng{background:var(--green);color:#fff;}
+.btng:hover{background:var(--gm);}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--gl);color:var(--green);font-size:12px;font-weight:500;padding:4px 10px;border-radius:99px;border:1px solid rgba(26,122,60,0.2);}
+.chip button{background:none;border:none;cursor:pointer;color:var(--green);font-size:14px;line-height:1;padding:0;}
+.tcard{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.tbar{padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.ttl{font-size:14px;font-weight:700;color:var(--text);}
+.tcnt{font-size:12px;color:var(--t3);margin-top:2px;font-family:"JetBrains Mono",monospace;}
+.sync{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t3);font-family:"JetBrains Mono",monospace;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--green);opacity:0;transition:opacity 0.3s;}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;min-width:580px;}
+thead{background:var(--s2);}
+th{padding:10px 12px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);}
+td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#f7fbf8;}
+tbody tr.rdone td{background:#faf5ff;}
+.pill{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;}
+.pok{background:var(--gl);color:var(--green);border:1px solid rgba(26,122,60,0.2);}
+.pwait{background:var(--al);color:var(--amber);border:1px solid rgba(217,119,6,0.2);}
+.pdone{background:var(--dl);color:var(--done);border:1px solid rgba(124,58,237,0.2);}
+.vbtn{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;color:var(--blue);background:var(--bl);border:1px solid rgba(37,99,235,0.15);border-radius:6px;padding:5px 10px;cursor:pointer;white-space:nowrap;}
+.vbtn:hover{background:#dbeafe;}
+.dbtn{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;color:var(--done);background:var(--dl);border:1px solid rgba(124,58,237,0.2);border-radius:6px;padding:5px 10px;cursor:pointer;white-space:nowrap;}
+.dbtn:hover{background:#c4b5fd;color:#fff;}
+.dbtn.done{background:var(--done);color:#fff;border-color:var(--done);}
+.dbtn.done:hover{background:#6d28d9;}
+.pag{padding:10px 16px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;border-top:1px solid var(--border);background:var(--s2);gap:8px;}
+.pinfo{font-size:12px;color:var(--t3);font-family:"JetBrains Mono",monospace;}
+.pbtns{display:flex;gap:4px;flex-wrap:wrap;}
+.pbtn{font-family:"JetBrains Mono",monospace;font-size:12px;padding:5px 10px;border:1px solid var(--b2);border-radius:6px;background:var(--white);color:var(--t2);cursor:pointer;}
+.pbtn:hover{background:var(--gl);color:var(--green);}
+.pbtn.act{background:var(--green);color:#fff;border-color:var(--green);}
+.pbtn:disabled{opacity:0.35;cursor:default;}
+.sbox{padding:60px 20px;text-align:center;}
+.stitle{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.ssub{font-size:13px;color:var(--t3);line-height:1.7;}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:sp 0.75s linear infinite;margin:0 auto 16px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:999;align-items:center;justify-content:center;padding:16px;}
+.mbg.open{display:flex;}
+.modal{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;width:100%;max-width:700px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,0.25);}
+.mhdr{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:var(--s2);}
+.mtitle{font-size:13px;font-weight:700;}
+.mclose{background:none;border:none;cursor:pointer;color:var(--t3);font-size:20px;padding:4px 8px;border-radius:6px;line-height:1;}
+.mbody{overflow:auto;flex:1;}
+.mbody img{display:block;max-width:100%;height:auto;}
+.mfoot{padding:12px 16px;border-top:1px solid var(--border);background:var(--s2);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.mload{padding:40px;text-align:center;color:var(--t3);}
+.toast{position:fixed;bottom:16px;right:16px;left:16px;background:var(--text);color:#fff;border-radius:var(--radius);padding:12px 16px;font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:all 0.3s;pointer-events:none;z-index:9999;text-align:center;}
+.toast.show{opacity:1;transform:translateY(0);}
+.footer{text-align:center;padding:16px;font-size:11px;color:var(--t3);font-family:"JetBrains Mono",monospace;border-top:1px solid var(--border);background:var(--white);margin-top:24px;}
+@media(min-width:600px){
+  .main{padding:20px 16px 40px;}
+  .fbar{grid-template-columns:repeat(3,1fr);}
+  .fg.act{grid-column:auto;justify-content:flex-start;align-items:flex-end;}
+  .grid4{grid-template-columns:repeat(4,1fr);}
+  .rfchip{display:flex;}
+  .toast{left:auto;right:24px;bottom:24px;text-align:left;max-width:360px;}
+}
+@media(min-width:900px){
+  .main{padding:24px 20px 48px;}
+  .hdr{padding:0 24px;}
+  .hmid{display:flex;}
+  .fbar{grid-template-columns:repeat(5,1fr) auto;}
+  .fg.act{grid-column:auto;}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="brand">
+    <div class="blogo">IQRS</div>
+    <div class="bdiv"></div>
+    <div>
+      <div class="bname">The BRAVO EPPME</div>
+      <div class="btag">IReV Quick Reach System</div>
+    </div>
+  </div>
+  <div class="hmid">
+    <div class="ebadge">Osun 2026 Governorship</div>
+    <div class="edate">Election Day - August 15, 2026</div>
+  </div>
+  <div class="hright">
+    <div class="rfchip">Next refresh in <span class="rfnum" id="rfnum">90</span>s</div>
+    <div class="livechip"><span class="ldot"></span> LIVE</div>
+  </div>
+</header>
+<div class="main">
+  <div class="banner" id="bannerEl">
+    <div class="ban-label">Osun Elections 2026</div>
+    <div class="ban-title">Results not yet available</div>
+    <div class="ban-sub">We are counting down to August 15th 2026 - We cannot wait too!</div>
+    <div class="ctiles">
+      <div class="ctile"><div class="cnum" id="cdD">--</div><div class="clbl">Days</div></div>
+      <div class="ctile"><div class="cnum" id="cdH">--</div><div class="clbl">Hours</div></div>
+      <div class="ctile"><div class="cnum" id="cdM">--</div><div class="clbl">Minutes</div></div>
+      <div class="ctile"><div class="cnum" id="cdS">--</div><div class="clbl">Seconds</div></div>
+    </div>
+  </div>
+  <div class="grid4">
+    <div class="sc g"><div class="sc-top"><div class="sc-ico g">&#127963;</div></div><div class="sc-lbl">Total PUs</div><div class="sc-val g" id="sTot">-</div><div class="sc-sub" id="sElec">Osun State</div></div>
+    <div class="sc g"><div class="sc-top"><div class="sc-ico g">&#9989;</div></div><div class="sc-lbl">Uploaded</div><div class="sc-val g" id="sUp">-</div><div class="sc-sub" id="sUpPct">-</div></div>
+    <div class="sc a"><div class="sc-top"><div class="sc-ico a">&#9203;</div></div><div class="sc-lbl">Pending</div><div class="sc-val a" id="sPend">-</div><div class="sc-sub">Awaiting upload</div></div>
+    <div class="sc p"><div class="sc-top"><div class="sc-ico p">&#10003;</div></div><div class="sc-lbl">Aggregated</div><div class="sc-val p" id="sDone">0</div><div class="sc-sub">Marked done by team</div></div>
+  </div>
+  <div class="pcard">
+    <div class="ph"><span class="ptitle">Aggregation progress</span><span class="ppct" id="ppct">0%</span></div>
+    <div class="ptrack"><div class="pfill" id="pfill" style="width:0%"></div></div>
+    <div class="plbls"><span><strong id="pdone">0</strong> aggregated</span><span><strong id="ptot">0</strong> total</span></div>
+  </div>
+  <div class="legend">
+    <div class="li"><span class="pill pok">&#10003; Uploaded</span> Result image available</div>
+    <div class="li"><span class="pill pwait">&#9203; Pending</span> No image yet</div>
+    <div class="li"><span class="pill pdone">&#10003; Done</span> Aggregated - skip this one</div>
+  </div>
+  <div class="fbar">
+    <div class="fg"><span class="fl">LGA</span><select id="lgaF" onchange="onLga()"><option value="">All LGAs</option></select></div>
+    <div class="fg"><span class="fl">Ward</span><select id="wardF" onchange="doFilter()"><option value="">All Wards</option></select></div>
+    <div class="fg"><span class="fl">Status</span><select id="statF" onchange="doFilter()"><option value="">All</option><option value="up">Uploaded</option><option value="pend">Pending</option></select></div>
+    <div class="fg"><span class="fl">Aggregation</span><select id="doneF" onchange="doFilter()"><option value="">All</option><option value="done">Done</option><option value="notdone">Not Done</option></select></div>
+    <div class="fg"><span class="fl">Search</span><input type="text" class="si" id="srch" placeholder="PU name or code..." oninput="doFilter()"></div>
+    <div class="fg act"><button class="btn btno" onclick="resetF()">Reset</button><button class="btn btng" onclick="exportCSV()">CSV</button></div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="tcard">
+    <div class="tbar">
+      <div><div class="ttl" id="ttl">Polling Unit Results</div><div class="tcnt" id="tcnt">-</div></div>
+      <div class="sync"><span class="sdot" id="sdot"></span><span id="stxt">Loading config...</span></div>
+    </div>
+    <div id="tcon">
+      <div class="sbox"><div class="spin"></div><div class="stitle">Connecting to IReV...</div><div class="ssub">Please wait.</div></div>
+    </div>
+    <div class="pag" id="pagbar" style="display:none"><span class="pinfo" id="pinfo"></span><div class="pbtns" id="pbtns"></div></div>
+  </div>
+</div>
+<div class="mbg" id="mbg" onclick="bgck(event)">
+  <div class="modal">
+    <div class="mhdr"><span class="mtitle" id="mtitle">Result Image</span><button class="mclose" onclick="closeM()">&#x2715;</button></div>
+    <div class="mbody" id="mbody"><div class="mload"><div class="spin"></div>Loading...</div></div>
+    <div class="mfoot">
+      <span id="mcode" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3)"></span>
+      <button id="mdbtn" class="dbtn">&#10003; Mark as Done</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="footer">The BRAVO EPPME - Advanced Elections Management Systems - Powered by INEC IReV</div>
+<script>
+var WEBAPP  = 'PASTE_YOUR_OSUN_WEBAPP_URL_HERE';
+var BASE    = 'https://dolphin-app-sleqh.ondigitalocean.app/api/v1';
+var ENAME   = 'Osun 2026 Governorship';
+var RPP     = 50;
+var RSEC    = 90;
+var all = [], filtered = [], curPage = 1;
+var lgaIdx = {}, lgaWards = {};
+var doneMap = {};
+var curCode = '';
+var EID = '', SID = '29';
+var cd = RSEC, cdT = null, running = false;
+// ELECTION DAY COUNTDOWN - Aug 15 2026, 08:00
+var TARGET = new Date(2026, 7, 15, 8, 0, 0).getTime();
+function tickCountdown() {
+  var ms = TARGET - Date.now();
+  if (ms < 0) ms = 0;
+  var D = Math.floor(ms / 86400000);
+  var H = Math.floor(ms % 86400000 / 3600000);
+  var M = Math.floor(ms % 3600000 / 60000);
+  var S = Math.floor(ms % 60000 / 1000);
+  function p(n) { return n < 10 ? '0' + n : '' + n; }
+  var eD = document.getElementById('cdD'), eH = document.getElementById('cdH'), eM = document.getElementById('cdM'), eS = document.getElementById('cdS');
+  if (eD) eD.textContent = D;
+  if (eH) eH.textContent = p(H);
+  if (eM) eM.textContent = p(M);
+  if (eS) eS.textContent = p(S);
+}
+tickCountdown();
+setInterval(tickCountdown, 1000);
+function loadConfig() {
+  fetch('config.json?' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(cfg) { EID = cfg.election_id || ''; SID = cfg.state_id || '29'; init(); })
+    .catch(function() { EID = ''; init(); });
+}
+function init() {
+  if (!EID || EID === 'PASTE_HERE_ON_AUG_15') {
+    document.getElementById('stxt').textContent = 'Waiting for election to go live';
+    document.getElementById('tcon').innerHTML = '<div class="sbox"><div class="stitle">PU results will appear here</div><div class="ssub">Results load automatically on August 15, 2026 once INEC opens the election on IReV.</div></div>';
+    startCD();
+    return;
+  }
+  document.getElementById('bannerEl').style.display = 'none';
+  fetchAll();
+  startCD();
+}
+function loadDone() {
+  fetch(WEBAPP + '?t=' + Date.now(), { redirect: 'follow' })
+    .then(function(r) { return r.json(); })
+    .then(function(j) { doneMap = j.done || {}; updateStats(); renderTable(); })
+    .catch(function() {});
+}
+function markDone(code) {
+  if (doneMap[code]) {
+    if (!confirm('Unmark this PU as Done?')) return;
+    delete doneMap[code];
+    updateStats(); renderTable();
+    postWebApp(code, 'undo');
+  } else {
+    doneMap[code] = new Date().toLocaleTimeString();
+    updateStats(); renderTable();
+    showToast('Marked Done: ' + code);
+    postWebApp(code, 'done');
+  }
+}
+function postWebApp(code, action) {
+  var fd = new URLSearchParams();
+  fd.append('puCode', code); fd.append('action', action); fd.append('election', ENAME);
+  fetch(WEBAPP, { method: 'POST', redirect: 'follow', body: fd })
+    .then(function(r) { return r.text(); })
+    .catch(function(e) { console.warn('WebApp:', e); });
+}
+function apiGet(path) {
+  return fetch(BASE + '/' + path, { headers: { Accept: 'application/json' } })
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(j) { return j.data || []; });
+}
+function fetchAll() {
+  document.getElementById('stxt').textContent = 'Fetching...';
+  fetch(BASE + '/elections/' + EID + '/result/stats', { headers: { Accept: 'application/json' } })
+    .then(function(r) { return r.json(); })
+    .then(function(j) { var s = j.data || {}; setIRevStats(s.pus || 0, s.documents || 0); })
+    .catch(function() {});
+  apiGet('elections/' + EID + '/lga/state/' + SID)
+    .then(function(lgas) {
+      if (!lgas.length) throw new Error('No LGAs found. Check Election ID and State ID.');
+      var lgaSel = document.getElementById('lgaF');
+      lgaSel.innerHTML = '<option value="">All LGAs</option>';
+      lgas.forEach(function(l) {
+        var name = l.lga ? l.lga.name : (l.name || '');
+        var mid  = l.lga ? l.lga._id  : l._id;
+        var did  = l._id;
+        lgaIdx[did] = { name: name, mid: mid };
+        lgaWards[did] = [];
+        var opt = document.createElement('option');
+        opt.value = did; opt.textContent = name;
+        lgaSel.appendChild(opt);
+      });
+      return processLgas(lgas);
+    })
+    .then(function() {
+      var ws = document.getElementById('wardF');
+      ws.innerHTML = '<option value="">All Wards</option>';
+      var seen = {};
+      all.forEach(function(p) {
+        if (p.ward && !seen[p.wardId]) {
+          seen[p.wardId] = true;
+          var o = document.createElement('option');
+          o.value = p.wardId; o.textContent = p.ward;
+          ws.appendChild(o);
+        }
+      });
+      running = true;
+      var now = new Date().toLocaleTimeString();
+      document.getElementById('stxt').textContent = 'Updated ' + now;
+      flash();
+      loadDone();
+      setInterval(loadDone, 90000);
+      doFilter();
+      showToast('Loaded ' + all.length.toLocaleString() + ' polling units');
+    })
+    .catch(function(e) {
+      document.getElementById('stxt').textContent = 'Error: ' + e.message;
+      document.getElementById('tcon').innerHTML = '<div class="sbox"><div class="stitle">Could not connect</div><div class="ssub">' + e.message + '</div></div>';
+    });
+}
+function processLgas(lgas) {
+  var chain = Promise.resolve();
+  lgas.forEach(function(lo) {
+    chain = chain.then(function() {
+      var lgaName = lo.lga ? lo.lga.name : (lo.name || '');
+      var lgaMid  = lo.lga ? lo.lga._id  : lo._id;
+      var lgaDid  = lo._id;
+      var wards   = lo.wards || [];
+      var wp = wards.length ? Promise.resolve(wards)
+        : apiGet('elections/' + EID + '/lga/' + lgaMid).then(function(f) { return (f && f.wards) ? f.wards : []; }).catch(function() { return []; });
+      return wp.then(function(ws) {
+        var wchain = Promise.resolve();
+        ws.forEach(function(w) {
+          var wn = w.name || '', wid = w._id || '';
+          if (!lgaWards[lgaDid]) lgaWards[lgaDid] = [];
+          lgaWards[lgaDid].push({ wardId: wid, wardName: wn });
+          wchain = wchain.then(function() {
+            return apiGet('elections/' + EID + '/pus?ward=' + wid)
+              .then(function(pus) {
+                pus.forEach(function(pu) {
+                  all.push({ lga: lgaName, lgaDid: lgaDid, ward: wn, wardId: wid, code: pu.pu_code || pu.code || '', name: pu.name || '', imgUrl: getImg(pu), uploadedAt: getT(pu) });
+                });
+              }).catch(function() {});
+          });
+        });
+        return wchain;
+      });
+    });
+  });
+  return chain;
+}
+function onLga() {
+  var did = document.getElementById('lgaF').value;
+  var ws  = document.getElementById('wardF');
+  ws.innerHTML = '<option value="">All Wards</option>';
+  if (did && lgaWards[did]) {
+    var seen = {};
+    lgaWards[did].forEach(function(w) {
+      if (!seen[w.wardId]) { seen[w.wardId] = true; var o = document.createElement('option'); o.value = w.wardId; o.textContent = w.wardName; ws.appendChild(o); }
+    });
+  }
+  doFilter();
+}
+function doFilter() {
+  var lga = document.getElementById('lgaF').value, ward = document.getElementById('wardF').value, stat = document.getElementById('statF').value, doneF = document.getElementById('doneF').value, srch = document.getElementById('srch').value.trim().toLowerCase();
+  filtered = all.filter(function(p) {
+    if (lga && p.lgaDid !== lga) return false;
+    if (ward && p.wardId !== ward) return false;
+    if (stat === 'up' && !p.imgUrl) return false;
+    if (stat === 'pend' && p.imgUrl) return false;
+    if (doneF === 'done' && !doneMap[p.code]) return false;
+    if (doneF === 'notdone' && doneMap[p.code]) return false;
+    if (srch && p.name.toLowerCase().indexOf(srch) < 0 && p.code.toLowerCase().indexOf(srch) < 0) return false;
+    return true;
+  });
+  curPage = 1;
+  renderChips(lga, ward, stat, doneF, srch);
+  updateStats();
+  renderTable();
+}
+function renderChips(lga, ward, stat, doneF, srch) {
+  var el = document.getElementById('chips'); el.innerHTML = '';
+  function chip(label, fn) { var d = document.createElement('div'); d.className = 'chip'; d.innerHTML = label + ' <button onclick="' + fn + '">&#x2715;</button>'; el.appendChild(d); }
+  if (lga) chip('LGA: ' + (lgaIdx[lga] ? lgaIdx[lga].name : lga), 'clrF("lga")');
+  if (ward) chip('Ward: ' + document.getElementById('wardF').options[document.getElementById('wardF').selectedIndex].text, 'clrF("ward")');
+  if (stat) chip('Status: ' + stat, 'clrF("stat")');
+  if (doneF) chip('Aggregation: ' + doneF, 'clrF("doneF")');
+  if (srch) chip('Search: ' + srch, 'clrF("srch")');
+}
+function clrF(t) {
+  if (t === 'lga') { document.getElementById('lgaF').value = ''; document.getElementById('wardF').innerHTML = '<option value="">All Wards</option>'; }
+  if (t === 'ward') document.getElementById('wardF').value = '';
+  if (t === 'stat') document.getElementById('statF').value = '';
+  if (t === 'doneF') document.getElementById('doneF').value = '';
+  if (t === 'srch') document.getElementById('srch').value = '';
+  doFilter();
+}
+function resetF() { document.getElementById('lgaF').value=''; document.getElementById('wardF').innerHTML='<option value="">All Wards</option>'; document.getElementById('statF').value=''; document.getElementById('doneF').value=''; document.getElementById('srch').value=''; doFilter(); }
+function setIRevStats(tot, docs) {
+  document.getElementById('sTot').textContent  = tot.toLocaleString();
+  document.getElementById('sUp').textContent   = docs.toLocaleString();
+  document.getElementById('sPend').textContent = (tot - docs).toLocaleString();
+  document.getElementById('sUpPct').textContent= tot ? Math.round(docs/tot*100) + '% uploaded' : '';
+}
+function updateStats() {
+  var tot = filtered.length;
+  var up = filtered.filter(function(p) { return !!p.imgUrl; }).length;
+  var done = filtered.filter(function(p) { return !!doneMap[p.code]; }).length;
+  var pct = tot ? Math.round(done / tot * 100) : 0;
+  var isF = filtered.length !== all.length;
+  document.getElementById('sTot').textContent = tot.toLocaleString();
+  document.getElementById('sUp').textContent = up.toLocaleString();
+  document.getElementById('sPend').textContent = (tot - up).toLocaleString();
+  document.getElementById('sDone').textContent = done.toLocaleString();
+  document.getElementById('sUpPct').textContent = tot ? Math.round(up/tot*100) + '% uploaded' : '';
+  document.getElementById('sElec').textContent = isF ? 'Filtered results' : 'Osun State';
+  document.getElementById('ppct').textContent = pct + '%';
+  document.getElementById('pfill').style.width = pct + '%';
+  document.getElementById('pdone').textContent = done.toLocaleString();
+  document.getElementById('ptot').textContent = tot.toLocaleString() + (isF ? ' matching' : ' total');
+}
+function renderTable() {
+  var con = document.getElementById('tcon');
+  var tot = filtered.length;
+  document.getElementById('ttl').textContent = 'Polling Unit Results';
+  document.getElementById('tcnt').textContent = tot.toLocaleString() + ' polling unit' + (tot !== 1 ? 's' : '');
+  if (!tot) {
+    con.innerHTML = '<div class="sbox"><div class="stitle">' + (all.length > 0 ? 'No results match filters' : 'PU results will appear here') + '</div><div class="ssub">' + (all.length > 0 ? 'Try adjusting your filters.' : 'Results load automatically on election day.') + '</div></div>';
+    document.getElementById('pagbar').style.display = 'none'; return;
+  }
+  var start = (curPage - 1) * RPP;
+  var page = filtered.slice(start, start + RPP);
+  var wrap = document.createElement('div'); wrap.className = 'tscroll';
+  var tbl = document.createElement('table');
+  var thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>#</th><th>LGA</th><th>Ward</th><th>PU Code</th><th>PU Name</th><th>Status</th><th>Result</th><th>Aggregated</th></tr>';
+  var tbody = document.createElement('tbody');
+  page.forEach(function(pu, i) {
+    var n = start + i + 1, has = !!pu.imgUrl, isDone = !!doneMap[pu.code];
+    var tr = document.createElement('tr');
+    if (isDone) tr.className = 'rdone';
+    function cell(c) { var td = document.createElement('td'); if (typeof c === 'string') td.innerHTML = c; else td.appendChild(c); return td; }
+    tr.appendChild(cell('' + n));
+    tr.appendChild(cell('<strong>' + pu.lga + '</strong>'));
+    tr.appendChild(cell('<span style="color:var(--t2);font-size:12px">' + pu.ward + '</span>'));
+    tr.appendChild(cell('<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--t3)">' + pu.code + '</span>'));
+    tr.appendChild(cell(pu.name));
+    tr.appendChild(cell(has ? '<span class="pill pok">&#10003; Uploaded</span>' : '<span class="pill pwait">&#9203; Pending</span>'));
+    var vtd = document.createElement('td');
+    if (has) { var vb = document.createElement('button'); vb.className = 'vbtn'; vb.textContent = 'View'; vb.setAttribute('data-url', pu.imgUrl); vb.setAttribute('data-name', pu.name); vb.setAttribute('data-code', pu.code); vb.onclick = function() { openM(this.getAttribute('data-url'), this.getAttribute('data-name'), this.getAttribute('data-code')); }; vtd.appendChild(vb); }
+    else vtd.innerHTML = '<span style="color:var(--t3)">-</span>';
+    tr.appendChild(vtd);
+    var dtd = document.createElement('td');
+    if (has) { var db = document.createElement('button'); db.className = isDone ? 'dbtn done' : 'dbtn'; db.innerHTML = isDone ? '&#10003; Done' : 'Mark Done'; db.setAttribute('data-code', pu.code); db.onclick = function() { markDone(this.getAttribute('data-code')); }; dtd.appendChild(db); }
+    else dtd.innerHTML = '<span style="color:var(--t3)">-</span>';
+    tr.appendChild(dtd);
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(thead); tbl.appendChild(tbody); wrap.appendChild(tbl);
+  con.innerHTML = ''; con.appendChild(wrap);
+  renderPag(tot);
+}
+function renderPag(tot) {
+  var pages = Math.ceil(tot / RPP);
+  document.getElementById('pagbar').style.display = 'flex';
+  var s = Math.min((curPage-1)*RPP+1,tot), e = Math.min(curPage*RPP,tot);
+  document.getElementById('pinfo').textContent = s + '-' + e + ' of ' + tot.toLocaleString();
+  var el = document.getElementById('pbtns'); el.innerHTML = '';
+  function addB(l,pg,dis,act) { var b=document.createElement('button'); b.className='pbtn'+(act?' act':''); b.textContent=l; b.disabled=dis; b.onclick=function(){curPage=pg;renderTable();window.scrollTo(0,0);}; el.appendChild(b); }
+  addB('<',curPage-1,curPage===1,false);
+  pageRange(curPage,pages).forEach(function(p){ if(p==='...'){var s=document.createElement('span');s.textContent='...';s.style.cssText='padding:5px 4px;color:var(--t3);font-size:12px';el.appendChild(s);}else addB(p,p,false,p===curPage);});
+  addB('>',curPage+1,curPage===pages,false);
+}
+function pageRange(c,t){if(t<=7){var a=[];for(var i=1;i<=t;i++)a.push(i);return a;}if(c<=4)return[1,2,3,4,5,'...',t];if(c>=t-3)return[1,'...',t-4,t-3,t-2,t-1,t];return[1,'...',c-1,c,c+1,'...',t];}
+function startCD() {
+  if (cdT) clearInterval(cdT);
+  cd = RSEC;
+  cdT = setInterval(function() {
+    cd--;
+    var el = document.getElementById('rfnum');
+    if (el) el.textContent = cd;
+    if (cd <= 0) {
+      cd = RSEC;
+      fetch('config.json?' + Date.now())
+        .then(function(r) { return r.json(); })
+        .then(function(cfg) {
+          var nid = cfg.election_id || '';
+          if (nid && nid !== 'PASTE_HERE_ON_AUG_15' && nid !== EID) {
+            EID = nid; SID = cfg.state_id || '29';
+            document.getElementById('bannerEl').style.display = 'none';
+          }
+        }).catch(function() {});
+      if (EID && EID !== 'PASTE_HERE_ON_AUG_15') { fetchAll().catch(function() {}); }
+    }
+  }, 1000);
+}
+function openM(url, name, code) {
+  curCode = code;
+  document.getElementById('mtitle').textContent = name;
+  document.getElementById('mcode').textContent = code;
+  var btn = document.getElementById('mdbtn');
+  btn.innerHTML = doneMap[code] ? '&#10003; Done (click to undo)' : '&#10003; Mark as Done';
+  btn.className = doneMap[code] ? 'dbtn done' : 'dbtn';
+  btn.onclick = function() { markDone(curCode); closeM(); };
+  document.getElementById('mbody').innerHTML = '<div class="mload"><div class="spin"></div>Loading...</div>';
+  document.getElementById('mbg').classList.add('open');
+  var img = new Image();
+  img.onload = function() { document.getElementById('mbody').innerHTML = ''; img.style.cssText = 'display:block;max-width:100%;height:auto'; document.getElementById('mbody').appendChild(img); };
+  img.onerror = function() { document.getElementById('mbody').innerHTML = '<div class="mload">Could not load.<br><a href="' + url + '" target="_blank" style="color:var(--blue)">Open directly</a></div>'; };
+  img.src = url;
+}
+function bgck(e) { if (e.target === document.getElementById('mbg')) closeM(); }
+function closeM() { document.getElementById('mbg').classList.remove('open'); document.getElementById('mbody').innerHTML = ''; }
+function getImg(pu) { var d = pu.document || {}; return d.url || d.link || pu.document_url || pu.result_url || ''; }
+function getT(pu) { var d = pu.document || {}; var t = d.updated_at || d.created_at || ''; return t ? new Date(t).toLocaleString() : ''; }
+function flash() { var d = document.getElementById('sdot'); d.style.opacity = '1'; setTimeout(function() { d.style.opacity = '0'; }, 2500); }
+function exportCSV() {
+  if (!filtered.length) { showToast('No data'); return; }
+  var h = ['LGA','Ward','PU Code','PU Name','Status','Aggregated','Uploaded At','Image URL'];
+  var rows = filtered.map(function(p) { return [p.lga,p.ward,p.code,'"'+p.name+'"',p.imgUrl?'Uploaded':'Pending',doneMap[p.code]?'Done':'Not Done',p.uploadedAt,p.imgUrl]; });
+  var csv = [h].concat(rows).map(function(r) { return r.join(','); }).join('\n');
+  var a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'osun_results.csv'; a.click();
+  showToast('CSV exported!');
+}
+function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeM(); });
+loadConfig();
+</script>
+</body>
+</html>
