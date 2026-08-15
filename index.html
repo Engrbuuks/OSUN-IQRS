@@ -312,16 +312,21 @@ function apiGet(path) {
     .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(j) { return j.data || []; });
 }
+var fetching = false, doneIntervalSet = false;
 function fetchAll() {
+  if (fetching) return Promise.resolve();   // guard: don't overlap refreshes
+  fetching = true;
   document.getElementById('stxt').textContent = 'Fetching...';
+  // Authoritative, stable stats — these drive the cards and never come from the walk
   fetch(BASE + '/elections/' + EID + '/result/stats', { headers: { Accept: 'application/json' } })
     .then(function(r) { return r.json(); })
     .then(function(j) { var s = j.data || {}; setIRevStats(s.pus || 0, s.documents || 0); })
     .catch(function() {});
-  apiGet('elections/' + EID + '/lga/state/' + SID)
+  // The walk builds into a TEMP array; we only swap it in when fully complete (atomic)
+  var tmpAll = [], tmpSeen = {};
+  return apiGet('elections/' + EID + '/lga/state/' + SID)
     .then(function(lgas) {
       if (!lgas.length) throw new Error('No LGAs found. Check Election ID and State ID.');
-      all = []; seenPU = {};   // fresh walk — avoid accumulation across refreshes
       var lgaSel = document.getElementById('lgaF');
       lgaSel.innerHTML = '<option value="">All LGAs</option>';
       lgas.forEach(function(l) {
@@ -334,9 +339,14 @@ function fetchAll() {
         opt.value = did; opt.textContent = name;
         lgaSel.appendChild(opt);
       });
-      return processLgas(lgas);
+      return processLgas(lgas, tmpAll, tmpSeen);
     })
     .then(function() {
+      // Atomic swap: only replace the live data once the whole walk finished.
+      // Never let a transient partial walk shrink the table.
+      if (tmpAll.length >= Math.floor(all.length * 0.9)) {
+        all = tmpAll; seenPU = tmpSeen;
+      }
       var ws = document.getElementById('wardF');
       ws.innerHTML = '<option value="">All Wards</option>';
       var seen = {};
@@ -353,16 +363,19 @@ function fetchAll() {
       document.getElementById('stxt').textContent = 'Updated ' + now;
       flash();
       loadDone();
-      setInterval(loadDone, 90000);
+      if (!doneIntervalSet) { setInterval(loadDone, 90000); doneIntervalSet = true; }
       doFilter();
       showToast('Loaded ' + all.length.toLocaleString() + ' polling units');
+      fetching = false;
     })
     .catch(function(e) {
+      fetching = false;
       document.getElementById('stxt').textContent = 'Error: ' + e.message;
-      document.getElementById('tcon').innerHTML = '<div class="sbox"><div class="stitle">Could not connect</div><div class="ssub">' + e.message + '</div></div>';
+      if (!all.length) document.getElementById('tcon').innerHTML = '<div class="sbox"><div class="stitle">Could not connect</div><div class="ssub">' + e.message + '</div></div>';
     });
 }
-function processLgas(lgas) {
+function processLgas(lgas, tmpAll, tmpSeen) {
+  var freshWards = {};   // rebuild ward index fresh so it can't drift
   var chain = Promise.resolve();
   lgas.forEach(function(lo) {
     chain = chain.then(function() {
@@ -376,17 +389,17 @@ function processLgas(lgas) {
         var wchain = Promise.resolve();
         ws.forEach(function(w) {
           var wn = w.name || '', wid = w._id || '';
-          if (!lgaWards[lgaDid]) lgaWards[lgaDid] = [];
-          lgaWards[lgaDid].push({ wardId: wid, wardName: wn });
+          if (!freshWards[lgaDid]) freshWards[lgaDid] = [];
+          freshWards[lgaDid].push({ wardId: wid, wardName: wn });
           wchain = wchain.then(function() {
             return apiGet('elections/' + EID + '/pus?ward=' + wid)
               .then(function(pus) {
                 pus.forEach(function(pu) {
                   var pcode = pu.pu_code || pu.code || '';
                   var key = pcode || (wid + '|' + (pu.name || '') + '|' + (pu._id || ''));
-                  if (seenPU[key]) return;   // skip duplicates
-                  seenPU[key] = true;
-                  all.push({ lga: lgaName, lgaDid: lgaDid, ward: wn, wardId: wid, code: pcode, name: pu.name || '', imgUrl: getImg(pu), uploadedAt: getT(pu) });
+                  if (tmpSeen[key]) return;   // skip duplicates
+                  tmpSeen[key] = true;
+                  tmpAll.push({ lga: lgaName, lgaDid: lgaDid, ward: wn, wardId: wid, code: pcode, name: pu.name || '', imgUrl: getImg(pu), uploadedAt: getT(pu) });
                 });
               }).catch(function() {});
           });
@@ -395,7 +408,7 @@ function processLgas(lgas) {
       });
     });
   });
-  return chain;
+  return chain.then(function() { lgaWards = freshWards; });
 }
 function onLga() {
   var did = document.getElementById('lgaF').value;
@@ -444,32 +457,38 @@ function clrF(t) {
   doFilter();
 }
 function resetF() { document.getElementById('lgaF').value=''; document.getElementById('wardF').innerHTML='<option value="">All Wards</option>'; document.getElementById('statF').value=''; document.getElementById('doneF').value=''; document.getElementById('srch').value=''; doFilter(); }
-var irevTot = 0, irevDocs = 0;
+var irevTot = 0, irevDocs = 0, peakDocs = 0;
 function setIRevStats(tot, docs) {
-  irevTot = tot; irevDocs = docs;
+  // Authoritative totals from /result/stats. Guard against transient dips:
+  // the reported PU total and uploaded count only ever hold or rise during an election.
+  if (tot > irevTot) irevTot = tot;
+  if (docs > peakDocs) peakDocs = docs;
+  irevDocs = peakDocs;
   updateStats();
 }
 function updateStats() {
-  var isF = filtered.length !== all.length;
-  // Total / Uploaded / Pending cards: use official IReV stats when unfiltered,
-  // fall back to filtered walk counts only when a filter is active.
-  var tot, up;
-  if (isF) {
-    tot = filtered.length;
-    up  = filtered.filter(function(p) { return !!p.imgUrl; }).length;
-  } else {
-    tot = irevTot || all.length;
-    up  = irevDocs || all.filter(function(p) { return !!p.imgUrl; }).length;
-  }
+  var isF = filtered.length !== all.length && all.length > 0;
   var done = filtered.filter(function(p) { return !!doneMap[p.code]; }).length;
   var aggBase = filtered.length;
   var pct = aggBase ? Math.round(done / aggBase * 100) : 0;
-  document.getElementById('sTot').textContent = tot.toLocaleString();
-  document.getElementById('sUp').textContent = up.toLocaleString();
-  document.getElementById('sPend').textContent = (tot - up).toLocaleString();
+  if (isF) {
+    // Filtered view: counts reflect the current filter (this is expected to change with filters)
+    var ftot = filtered.length;
+    var fup  = filtered.filter(function(p) { return !!p.imgUrl; }).length;
+    document.getElementById('sTot').textContent = ftot.toLocaleString();
+    document.getElementById('sUp').textContent = fup.toLocaleString();
+    document.getElementById('sPend').textContent = (ftot - fup).toLocaleString();
+    document.getElementById('sUpPct').textContent = ftot ? Math.round(fup/ftot*100) + '% uploaded' : '';
+    document.getElementById('sElec').textContent = 'Filtered results';
+  } else {
+    // Unfiltered: ALWAYS the stable authoritative numbers — never the walk count
+    document.getElementById('sTot').textContent = irevTot.toLocaleString();
+    document.getElementById('sUp').textContent = irevDocs.toLocaleString();
+    document.getElementById('sPend').textContent = Math.max(0, irevTot - irevDocs).toLocaleString();
+    document.getElementById('sUpPct').textContent = irevTot ? Math.round(irevDocs/irevTot*100) + '% uploaded' : '';
+    document.getElementById('sElec').textContent = 'Osun State';
+  }
   document.getElementById('sDone').textContent = done.toLocaleString();
-  document.getElementById('sUpPct').textContent = tot ? Math.round(up/tot*100) + '% uploaded' : '';
-  document.getElementById('sElec').textContent = isF ? 'Filtered results' : 'Osun State';
   document.getElementById('ppct').textContent = pct + '%';
   document.getElementById('pfill').style.width = pct + '%';
   document.getElementById('pdone').textContent = done.toLocaleString();
@@ -528,8 +547,17 @@ function renderPag(tot) {
   addB('>',curPage+1,curPage===pages,false);
 }
 function pageRange(c,t){if(t<=7){var a=[];for(var i=1;i<=t;i++)a.push(i);return a;}if(c<=4)return[1,2,3,4,5,'...',t];if(c>=t-3)return[1,'...',t-4,t-3,t-2,t-1,t];return[1,'...',c-1,c,c+1,'...',t];}
+function refreshStatsOnly() {
+  if (!EID || EID === 'PASTE_HERE_ON_AUG_15') return;
+  fetch(BASE + '/elections/' + EID + '/result/stats', { headers: { Accept: 'application/json' } })
+    .then(function(r) { return r.json(); })
+    .then(function(j) { var s = j.data || {}; setIRevStats(s.pus || 0, s.documents || 0); })
+    .catch(function() {});
+}
+var statsPoller = null;
 function startCD() {
   if (cdT) clearInterval(cdT);
+  if (!statsPoller) statsPoller = setInterval(refreshStatsOnly, 30000);
   cd = RSEC;
   cdT = setInterval(function() {
     cd--;
